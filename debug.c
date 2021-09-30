@@ -3,7 +3,9 @@
 #include "debug.h"
 
 void disassembleChunk(Chunk *chunk, const char *name) {
-    printf("== %s ==\n", name);
+    printf("== %s ==\n\n", name);
+    printf(" loc line instruction\n");
+    printf("---- ---- -----------\n");
 
     for (int offset = 0; offset < chunk->count;) {
         offset = disassembleInstruction(chunk, offset);
@@ -30,6 +32,13 @@ static int constantInstruction(const char *name, Chunk *chunk, int offset) {
 
 int disassembleInstruction(Chunk *chunk, int offset) {
     printf("%04d ", offset);
+
+    // print line number
+    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+        printf("   | ");
+    } else {
+        printf("%4d ", chunk->lines[offset]);
+    }
 
     uint8_t instruction = chunk->code[offset];
     switch (instruction) {

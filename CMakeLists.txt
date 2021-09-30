@@ -9,7 +9,8 @@ add_executable(clox
     chunk.h chunk.c
     memory.h memory.c
     debug.h debug.c
-    value.h value.c)
+    value.h value.c
+)
 
 if(MSVC)
     add_compile_options(/W4 /WX)
