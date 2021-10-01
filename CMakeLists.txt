@@ -3,6 +3,13 @@ project(clox C)
 
 set(CMAKE_C_STANDARD 99)
 
+# turn on all warnings
+if(MSVC)
+    add_compile_options(/W4 /WX)
+else()
+    add_compile_options(-Wall -Wextra -Wpedantic -g -O0)
+endif()
+
 add_executable(clox
     main.c
     common.h
@@ -11,9 +18,3 @@ add_executable(clox
     debug.h debug.c
     value.h value.c
 )
-
-if(MSVC)
-    add_compile_options(/W4 /WX)
-else()
-    add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-endif()

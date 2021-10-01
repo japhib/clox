@@ -13,7 +13,14 @@ typedef struct {
     int count;
     int capacity;
     uint8_t* code;
+
+    // lines is a run-length encoded array so has a different count.
+    // The count refers to just past the end of the array.
+    // Each line entry consists of a count (offset * 2) and a line number (offset * 2 + 1)
+    int linesCount;
+    int linesCapacity;
     int* lines;
+    
     ValueArray constants;
 } Chunk;
 
@@ -24,5 +31,8 @@ void freeChunk(Chunk *chunk);
 // Add a constant value to the constants table.
 // Returns the index of the new constant.
 int addConstant(Chunk *chunk, Value value);
+
+// Gets a line number for the byte at the index provided.
+int getLine(Chunk *chunk, int index);
 
 #endif //CLOX_CHUNK_H

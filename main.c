@@ -15,7 +15,15 @@ int main() {
     writeChunk(&chunk, OP_CONSTANT, 2);
     writeChunk(&chunk, constant, 2);
 
-    writeChunk(&chunk, OP_RETURN, 2);
+    constant = addConstant(&chunk, stringValue("this is a string literal 2"));
+    writeChunk(&chunk, OP_CONSTANT, 2);
+    writeChunk(&chunk, constant, 2);
+
+    constant = addConstant(&chunk, stringValue("this is a string literal 3"));
+    writeChunk(&chunk, OP_CONSTANT, 2);
+    writeChunk(&chunk, constant, 2);
+
+    writeChunk(&chunk, OP_RETURN, 3);
 
     disassembleChunk(&chunk, "test chunk");
 
