@@ -1,3 +1,4 @@
 out
 ./clox
 *.o
+.vscode/

@@ -2,31 +2,29 @@
 #include "chunk.h"
 #include "debug.h"
 #include "value.h"
+#include "vm.h"
 
 int main() {
+    initVM();
     Chunk chunk;
     initChunk(&chunk);
 
-    int constant = addConstant(&chunk, numberValue(123.456));
     writeChunk(&chunk, OP_CONSTANT, 1);
+    int constant = addConstant(&chunk, numberValue(123.456));
     writeChunk(&chunk, constant, 1);
 
-    constant = addConstant(&chunk, stringValue("this is a string literal"));
     writeChunk(&chunk, OP_CONSTANT, 2);
-    writeChunk(&chunk, constant, 2);
+    constant = addConstant(&chunk, numberValue(100.0));
+    writeChunk(&chunk, constant, 1);
 
-    constant = addConstant(&chunk, stringValue("this is a string literal 2"));
-    writeChunk(&chunk, OP_CONSTANT, 2);
-    writeChunk(&chunk, constant, 2);
-
-    constant = addConstant(&chunk, stringValue("this is a string literal 3"));
-    writeChunk(&chunk, OP_CONSTANT, 2);
-    writeChunk(&chunk, constant, 2);
+    writeChunk(&chunk, OP_DIVIDE, 2);
+    writeChunk(&chunk, OP_NEGATE, 2);
 
     writeChunk(&chunk, OP_RETURN, 3);
 
-    disassembleChunk(&chunk, "test chunk");
+    interpret(&chunk);
 
     freeChunk(&chunk);
+    freeVM();
     return 0;
 }

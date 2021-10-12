@@ -20,27 +20,48 @@ static int constantInstruction(const char *name, Chunk *chunk, int offset) {
     return offset + 2;
 }
 
-static int disassembleInstruction(Chunk *chunk, int offset, int *prevLine) {
+static int disassembleInstructionExt(Chunk *chunk, int offset, int *prevLine) {
     printf("%04d ", offset);
 
+    // this could be kinda slow since we iterate through the entire array of lines each time
     int currLine = getLine(chunk, offset);
-    if (offset > 0 && *prevLine == currLine) {
+    if (offset > 0 && prevLine != NULL && *prevLine == currLine) {
         printf("   | ");
     } else {
         printf("%4d ", currLine);
     }
-    *prevLine = currLine;
+    if (prevLine != NULL) *prevLine = currLine;
 
     uint8_t instruction = chunk->code[offset];
     switch (instruction) {
-        case OP_CONSTANT:
-            return constantInstruction("OP_CONSTANT", chunk, offset);
-        case OP_RETURN:
-            return simpleInstruction("OP_RETURN", offset);
-        default:
-            printf("Unknown opcode %d\n", instruction);
-            return offset + 1;
+
+#define SIMPLE(name) return simpleInstruction(name, offset)
+
+    case OP_CONSTANT:
+        return constantInstruction("OP_CONSTANT", chunk, offset);
+    case OP_ADD:
+        SIMPLE("OP_ADD");
+    case OP_SUBTRACT:
+        SIMPLE("OP_SUBTRACT");
+    case OP_MULTIPLY:
+        SIMPLE("OP_MULTIPLY");
+    case OP_DIVIDE:
+        SIMPLE("OP_DIVIDE");
+    case OP_NEGATE:
+        SIMPLE("OP_NEGATE");
+    case OP_RETURN:
+        SIMPLE("OP_RETURN");
+
+#undef SIMPLE
+
+    default:
+        printf("Unknown opcode %d\n", instruction);
+        return offset + 1;
     }
+}
+
+int disassembleInstruction(Chunk *chunk, int offset) {
+    return disassembleInstructionExt(chunk, offset, NULL);
 }
 
 void disassembleChunk(Chunk *chunk, const char *name) {
@@ -50,20 +71,20 @@ void disassembleChunk(Chunk *chunk, const char *name) {
 
     int prevLine = 0;
     for (int offset = 0; offset < chunk->count;) {
-        offset = disassembleInstruction(chunk, offset, &prevLine);
+        offset = disassembleInstructionExt(chunk, offset, &prevLine);
     }
 }
 
 void printValue(Value v) {
     switch (v.type) {
-        case VALUE_STRING:
-            printf("%s", v.inner.string);
-            break;
-        case VALUE_NUMBER:
-            printf("%f", v.inner.number);
-            break;
-        default:
-            printf("<unknown value type: %d>", v.type);
-            break;
+    case VALUE_STRING:
+        printf("%s", v.inner.string);
+        break;
+    case VALUE_NUMBER:
+        printf("%f", v.inner.number);
+        break;
+    default:
+        printf("<unknown value type: %d>", v.type);
+        break;
     }
 }
