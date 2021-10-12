@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "compiler.h"
 #include "vm.h"
 #include "debug.h"
 
@@ -85,9 +86,9 @@ static InterpretResult run() {
 #undef READ_CONSTANT
 }
 
-InterpretResult interpret(Chunk *chunk) {
-    vm.chunk = chunk;
-    return run();
+InterpretResult interpret(const char* source) {
+    compile(source);
+    return INTERPRET_OK;
 }
 
 void push(Value value) {

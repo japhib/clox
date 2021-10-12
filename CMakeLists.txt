@@ -13,9 +13,11 @@ endif()
 add_executable(clox
     main.c
     common.h
+    compiler.h compiler.c
     chunk.h chunk.c
     debug.h debug.c
     memory.h memory.c
+    scanner.h scanner.c
     value.h value.c
     vm.h vm.c
 )
