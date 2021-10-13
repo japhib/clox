@@ -25,4 +25,4 @@ InterpretResult interpret(const char* chunk);
 void push(Value value);
 Value pop();
 
-#endif  // CLOX_VM_H
+#endif // CLOX_VM_H

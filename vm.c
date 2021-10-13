@@ -7,9 +7,13 @@
 
 static VM vm;
 
-static void resetStack() { vm.stackTop = vm.stack; }
+static void resetStack() {
+    vm.stackTop = vm.stack;
+}
 
-void initVM() { resetStack(); }
+void initVM() {
+    resetStack();
+}
 
 void freeVM() {}
 
@@ -40,7 +44,7 @@ static InterpretResult run() {
 
         // Show current instruction
         disassembleInstruction(vm.chunk, CURR_OFFSET());
-#endif  // DEBUG_TRACE_EXECUTION
+#endif // DEBUG_TRACE_EXECUTION
 
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
@@ -60,22 +64,12 @@ static InterpretResult run() {
                 push(temp);
             } break;
 
-            case OP_ADD:
-                BINARY_OP(+);
-                break;
-            case OP_SUBTRACT:
-                BINARY_OP(-);
-                break;
-            case OP_MULTIPLY:
-                BINARY_OP(*);
-                break;
-            case OP_DIVIDE:
-                BINARY_OP(/);
-                break;
+            case OP_ADD: BINARY_OP(+); break;
+            case OP_SUBTRACT: BINARY_OP(-); break;
+            case OP_MULTIPLY: BINARY_OP(*); break;
+            case OP_DIVIDE: BINARY_OP(/); break;
 
-            default:
-                printf("Unknown opcode: %d\n", instruction);
-                break;
+            default: printf("Unknown opcode: %d\n", instruction); break;
         }
     }
 

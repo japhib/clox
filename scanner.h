@@ -67,4 +67,4 @@ Scanner scanner;
 void initScanner(const char* source);
 Token scanToken();
 
-#endif  // CLOX_SCANNER_H
+#endif // CLOX_SCANNER_H

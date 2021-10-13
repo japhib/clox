@@ -2,12 +2,12 @@
 
 #include <stdio.h>
 
-static int simpleInstruction(const char *name, int offset) {
+static int simpleInstruction(const char* name, int offset) {
     printf("%s\n", name);
     return offset + 1;
 }
 
-static int constantInstruction(const char *name, Chunk *chunk, int offset) {
+static int constantInstruction(const char* name, Chunk* chunk, int offset) {
     printf("%s ", name);
 
     uint8_t constantIdx = chunk->code[offset + 1];
@@ -20,7 +20,7 @@ static int constantInstruction(const char *name, Chunk *chunk, int offset) {
     return offset + 2;
 }
 
-static int disassembleInstructionExt(Chunk *chunk, int offset, int *prevLine) {
+static int disassembleInstructionExt(Chunk* chunk, int offset, int* prevLine) {
     printf("%04d ", offset);
 
     // this could be kinda slow since we iterate through the entire array of lines each time
@@ -50,11 +50,11 @@ static int disassembleInstructionExt(Chunk *chunk, int offset, int *prevLine) {
     }
 }
 
-int disassembleInstruction(Chunk *chunk, int offset) {
+int disassembleInstruction(Chunk* chunk, int offset) {
     return disassembleInstructionExt(chunk, offset, NULL);
 }
 
-void disassembleChunk(Chunk *chunk, const char *name) {
+void disassembleChunk(Chunk* chunk, const char* name) {
     printf("== %s ==\n\n", name);
     printf("loc  line instruction\n");
     printf("---- ---- -----------\n");
