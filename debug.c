@@ -25,10 +25,8 @@ static int disassembleInstructionExt(Chunk* chunk, int offset, int* prevLine) {
 
     // this could be kinda slow since we iterate through the entire array of lines each time
     int currLine = getLine(chunk, offset);
-    if (offset > 0 && prevLine != NULL && *prevLine == currLine)
-        printf("   | ");
-    else
-        printf("%4d ", currLine);
+    if (offset > 0 && prevLine != NULL && *prevLine == currLine) printf("   | ");
+    else printf("%4d ", currLine);
 
     if (prevLine != NULL) *prevLine = currLine;
 

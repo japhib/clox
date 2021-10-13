@@ -16,7 +16,7 @@ void compile(const char* source) {
         } else {
             printf("   | ");
         }
-        printf("%2d '%.*s'\n", token.type, token.length, token.start);
+        printf("%-20s '%.*s'\n", getTokenTypeName(token.type), token.length, token.start);
 
         if (token.type == TOKEN_EOF || token.type == TOKEN_ERROR) break;
     }

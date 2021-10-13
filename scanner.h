@@ -66,5 +66,6 @@ Scanner scanner;
 
 void initScanner(const char* source);
 Token scanToken();
+const char* getTokenTypeName(TokenType type);
 
 #endif // CLOX_SCANNER_H

@@ -24,9 +24,8 @@ void initValueArray(ValueArray* valueArray) {
 
 void writeValueArray(ValueArray* valueArray, Value value) {
     if (valueArray->capacity < valueArray->count + 1) {
-        int oldCapacity = valueArray->capacity;
-        valueArray->capacity = GROW_CAPACITY(oldCapacity);
-        valueArray->values = GROW_ARRAY(Value, valueArray->values, oldCapacity, valueArray->capacity);
+        valueArray->capacity = GROW_CAPACITY(valueArray->capacity);
+        valueArray->values = GROW_ARRAY(Value, valueArray->values, valueArray->capacity);
     }
 
     valueArray->values[valueArray->count] = value;

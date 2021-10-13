@@ -14,9 +14,8 @@ void initChunk(Chunk* chunk) {
 
 void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     if (chunk->capacity < chunk->count + 1) {
-        int oldCapacity = chunk->capacity;
-        chunk->capacity = GROW_CAPACITY(oldCapacity);
-        chunk->code = GROW_ARRAY(uint8_t, chunk->code, oldCapacity, chunk->capacity);
+        chunk->capacity = GROW_CAPACITY(chunk->capacity);
+        chunk->code = GROW_ARRAY(uint8_t, chunk->code, chunk->capacity);
     }
 
     chunk->code[chunk->count] = byte;
@@ -29,10 +28,9 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     } else {
         // different line number, or empty lines array. Either way, insert a new entry (2 ints).
         if (chunk->linesCapacity < chunk->linesCount + 2) {
-            int oldLinesCap = chunk->linesCapacity;
             // starts at 8 and doubles every time so this is plenty
-            chunk->linesCapacity = GROW_CAPACITY(oldLinesCap);
-            chunk->lines = GROW_ARRAY(int, chunk->lines, oldLinesCap, chunk->linesCapacity);
+            chunk->linesCapacity = GROW_CAPACITY(chunk->linesCapacity);
+            chunk->lines = GROW_ARRAY(int, chunk->lines, chunk->linesCapacity);
         }
 
         chunk->lines[chunk->linesCount] = 1;
