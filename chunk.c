@@ -57,9 +57,8 @@ int getLine(Chunk* chunk, int index) {
     for (int i = 0; i < chunk->linesCount; i += 2) {
         int entryCount = chunk->lines[i];
         int currLine = chunk->lines[i + 1];
-        if (index < entryCount) {
-            return currLine;
-        }
+        if (index < entryCount) return currLine;
+
         index -= entryCount;
     }
 

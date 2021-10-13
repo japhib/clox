@@ -1,4 +1,5 @@
 ---
+# See full list of options here: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: Google
 IndentWidth: 4
 ColumnLimit: 120
@@ -6,3 +7,12 @@ PointerAlignment: Left
 ReferenceAlignment: Left
 SortIncludes: CaseSensitive
 AlignEscapedNewlines: DontAlign
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakBeforeMultilineStrings: true
+BinPackArguments: true
+BinPackParameters: true

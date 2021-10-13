@@ -8,7 +8,7 @@
 void compile(const char* source) {
     initScanner(source);
     int line = -1;
-    for (;;) {
+    while (true) {
         Token token = scanToken();
         if (token.line != line) {
             printf("%4d ", token.line);
@@ -18,8 +18,6 @@ void compile(const char* source) {
         }
         printf("%2d '%.*s'\n", token.type, token.length, token.start);
 
-        if (token.type == TOKEN_EOF || token.type == TOKEN_ERROR) {
-            break;
-        }
+        if (token.type == TOKEN_EOF || token.type == TOKEN_ERROR) break;
     }
 }
