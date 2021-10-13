@@ -3,4 +3,4 @@
 
 void compile(const char* source);
 
-#endif //CLOX_COMPILER_H
+#endif  // CLOX_COMPILER_H
