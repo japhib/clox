@@ -2,20 +2,6 @@
 
 #include "memory.h"
 
-Value numberValue(double number) {
-    return (Value){
-        .type = VALUE_NUMBER,
-        .inner = (ValueInner){.number = number},
-    };
-}
-
-Value stringValue(const char* string) {
-    return (Value){
-        .type = VALUE_STRING,
-        .inner = (ValueInner){.string = string},
-    };
-}
-
 void initValueArray(ValueArray* valueArray) {
     valueArray->count = 0;
     valueArray->capacity = 0;

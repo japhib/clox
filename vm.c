@@ -1,9 +1,17 @@
 #include "vm.h"
 
+#include <stdarg.h> // for varargs stuff, used in runtimeError
 #include <stdio.h>
 
 #include "compiler.h"
 #include "debug.h"
+
+// -- forward declarations
+static Value peek(int distance);
+static void runtimeError(uint8_t* ip, const char* format, ...);
+static bool isTruthy(Value value);
+static bool valuesEqual(Value a, Value b);
+// --
 
 static VM vm;
 
@@ -18,15 +26,24 @@ void initVM() {
 void freeVM() {}
 
 static InterpretResult run() {
+
+#ifdef DEBUG_TRACE_EXECUTION
+    printf("== Execution trace ==\n");
+#endif
+
 // Convenience macros
 #define CURR_OFFSET() ((int)(ip - vm.chunk->code))
 #define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define BINARY_OP(op) \
+#define BINARY_OP(valueType, op) \
     do { \
         Value b = pop(); \
         Value a = pop(); \
-        push(numberValue(a.inner.number op b.inner.number)); \
+        if (!IS_NUMBER(a) || !IS_NUMBER(b)) { \
+            runtimeError(ip, "operands must be numbers!"); \
+            return INTERPRET_RUNTIME_ERROR; \
+        } \
+        push(valueType(AS_NUMBER(a) op AS_NUMBER(b))); \
     } while (false)
 
     uint8_t* ip = vm.chunk->code;
@@ -53,21 +70,47 @@ static InterpretResult run() {
                 printf("\n");
                 return INTERPRET_OK;
 
+            // --- constants & literals ---
             case OP_CONSTANT: {
                 Value constant = READ_CONSTANT();
                 push(constant);
             } break;
 
+            case OP_NIL: push(NIL_VAL); break;
+            case OP_TRUE: push(BOOL_VAL(true)); break;
+            case OP_FALSE: push(BOOL_VAL(false)); break;
+
+            // --- unary ops ---
             case OP_NEGATE: {
                 Value temp = pop();
+                if (!IS_NUMBER(temp)) {
+                    runtimeError(ip, "operand must be a number!");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
                 temp.inner.number = -temp.inner.number;
                 push(temp);
             } break;
 
-            case OP_ADD: BINARY_OP(+); break;
-            case OP_SUBTRACT: BINARY_OP(-); break;
-            case OP_MULTIPLY: BINARY_OP(*); break;
-            case OP_DIVIDE: BINARY_OP(/); break;
+            case OP_NOT: push(BOOL_VAL(!isTruthy(pop()))); break;
+
+            // --- binary ops ---
+            case OP_EQUAL: {
+                Value b = pop();
+                Value a = pop();
+                push(BOOL_VAL(valuesEqual(a, b)));
+                break;
+            }
+
+            // arithmetic
+            case OP_ADD: BINARY_OP(NUMBER_VAL, +); break;
+            case OP_SUBTRACT: BINARY_OP(NUMBER_VAL, -); break;
+            case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
+            case OP_DIVIDE: BINARY_OP(NUMBER_VAL, /); break;
+
+            // comparison
+            case OP_GREATER: BINARY_OP(BOOL_VAL, >); break;
+            case OP_LESS: BINARY_OP(BOOL_VAL, <); break;
 
             default: printf("Unknown opcode: %d\n", instruction); break;
         }
@@ -106,4 +149,43 @@ void push(Value value) {
 Value pop() {
     vm.stackTop--;
     return *vm.stackTop;
+}
+
+// peek(0) returns top of stack
+static Value peek(int distance) {
+    return vm.stackTop[-1 - distance];
+}
+
+static void runtimeError(uint8_t* ip, const char* format, ...) {
+    int instructionIdx = ip - vm.chunk->code - 1;
+    int line = getLine(vm.chunk, instructionIdx);
+
+    fprintf(stderr, "Runtime error at line %d: ", line);
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fputs("\n", stderr);
+
+    resetStack();
+}
+
+// only false and nil are falsey, everything else truthy
+static bool isTruthy(Value value) {
+    switch (value.type) {
+        case VAL_BOOL: return AS_BOOL(value);
+        case VAL_NIL: return false;
+        default: return true;
+    }
+}
+
+static bool valuesEqual(Value a, Value b) {
+    if (a.type != b.type) return false;
+    switch (a.type) {
+        case VAL_BOOL: return AS_BOOL(a) == AS_BOOL(b);
+        case VAL_NIL: return true;
+        case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
+        default: return false; // unreachable
+    }
 }

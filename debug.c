@@ -32,16 +32,28 @@ static int disassembleInstructionExt(Chunk* chunk, int offset, int* prevLine) {
 
     uint8_t instruction = chunk->code[offset];
     switch (instruction) {
-#define SIMPLE(name) return simpleInstruction(name, offset)
 
-        case OP_CONSTANT: return constantInstruction("OP_CONSTANT", chunk, offset);
-        case OP_ADD: SIMPLE("OP_ADD");
-        case OP_SUBTRACT: SIMPLE("OP_SUBTRACT");
-        case OP_MULTIPLY: SIMPLE("OP_MULTIPLY");
-        case OP_DIVIDE: SIMPLE("OP_DIVIDE");
-        case OP_NEGATE: SIMPLE("OP_NEGATE");
-        case OP_RETURN: SIMPLE("OP_RETURN");
+        case OP_CONSTANT:
+            return constantInstruction("OP_CONSTANT", chunk, offset);
 
+// clang-format off
+#define SIMPLE(name) case name: return simpleInstruction(#name, offset)
+
+        SIMPLE(OP_ADD);
+        SIMPLE(OP_DIVIDE);
+        SIMPLE(OP_EQUAL);
+        SIMPLE(OP_FALSE);
+        SIMPLE(OP_GREATER);
+        SIMPLE(OP_LESS);
+        SIMPLE(OP_MULTIPLY);
+        SIMPLE(OP_NEGATE);
+        SIMPLE(OP_NIL);
+        SIMPLE(OP_NOT);
+        SIMPLE(OP_RETURN);
+        SIMPLE(OP_SUBTRACT);
+        SIMPLE(OP_TRUE);
+
+// clang-format on
 #undef SIMPLE
 
         default: printf("Unknown opcode %d\n", instruction); return offset + 1;
@@ -65,8 +77,10 @@ void disassembleChunk(Chunk* chunk, const char* name) {
 
 void printValue(Value v) {
     switch (v.type) {
-        case VALUE_STRING: printf("%s", v.inner.string); break;
-        case VALUE_NUMBER: printf("%f", v.inner.number); break;
+            //        case VAL_STRING: printf("%s", v.inner.string); break;
+        case VAL_BOOL: printf("%s", AS_BOOL(v) ? "true" : "false"); break;
+        case VAL_NIL: printf("nil"); break;
+        case VAL_NUMBER: printf("%g", AS_NUMBER(v)); break;
         default: printf("<unknown value type: %d>", v.type); break;
     }
 }
