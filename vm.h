@@ -3,6 +3,7 @@
 
 #include "chunk.h"
 #include "common.h"
+#include "object.h"
 #include "value.h"
 
 #define STACK_MAX 256
@@ -17,7 +18,12 @@ typedef struct {
     Chunk* chunk;
     Value stack[STACK_MAX];
     Value* stackTop;
+
+    // Linked list of all allocated objects, so we can keep track of them and free them later
+    Obj* objects;
 } VM;
+
+extern VM vm;
 
 void initVM();
 void freeVM();

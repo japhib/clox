@@ -2,18 +2,19 @@
 
 #include <stdarg.h> // for varargs stuff, used in runtimeError
 #include <stdio.h>
+#include <string.h>
 
 #include "compiler.h"
 #include "debug.h"
+#include "memory.h"
 
 // -- forward declarations
 static Value peek(int distance);
 static void runtimeError(uint8_t* ip, const char* format, ...);
-static bool isTruthy(Value value);
-static bool valuesEqual(Value a, Value b);
+static void concatenate();
 // --
 
-static VM vm;
+VM vm;
 
 static void resetStack() {
     vm.stackTop = vm.stack;
@@ -21,9 +22,21 @@ static void resetStack() {
 
 void initVM() {
     resetStack();
+    vm.objects = NULL;
 }
 
-void freeVM() {}
+static void freeObjects() {
+    Obj* current = vm.objects;
+    while (current != NULL) {
+        Obj* next = current->next;
+        freeObject(current);
+        current = next;
+    }
+}
+
+void freeVM() {
+    freeObjects();
+}
 
 static InterpretResult run() {
 
@@ -103,7 +116,19 @@ static InterpretResult run() {
             }
 
             // arithmetic
-            case OP_ADD: BINARY_OP(NUMBER_VAL, +); break;
+            case OP_ADD:
+                if (IS_STRING(peek(0)) && IS_STRING(peek(1))) {
+                    concatenate();
+                } else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1))) {
+                    double b = AS_NUMBER(pop());
+                    double a = AS_NUMBER(pop());
+                    push(NUMBER_VAL(a + b));
+                } else {
+                    runtimeError(ip, "Operands must be two numbers or two strings!");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                break;
+
             case OP_SUBTRACT: BINARY_OP(NUMBER_VAL, -); break;
             case OP_MULTIPLY: BINARY_OP(NUMBER_VAL, *); break;
             case OP_DIVIDE: BINARY_OP(NUMBER_VAL, /); break;
@@ -171,21 +196,16 @@ static void runtimeError(uint8_t* ip, const char* format, ...) {
     resetStack();
 }
 
-// only false and nil are falsey, everything else truthy
-static bool isTruthy(Value value) {
-    switch (value.type) {
-        case VAL_BOOL: return AS_BOOL(value);
-        case VAL_NIL: return false;
-        default: return true;
-    }
-}
+static void concatenate() {
+    ObjString* b = AS_STRING(pop());
+    ObjString* a = AS_STRING(pop());
 
-static bool valuesEqual(Value a, Value b) {
-    if (a.type != b.type) return false;
-    switch (a.type) {
-        case VAL_BOOL: return AS_BOOL(a) == AS_BOOL(b);
-        case VAL_NIL: return true;
-        case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
-        default: return false; // unreachable
-    }
+    int newLength = a->length + b->length;
+    char* chars = ALLOCATE(char, newLength + 1);
+    memcpy(chars, a->chars, a->length);
+    memcpy(chars + a->length, b->chars, b->length);
+    chars[newLength] = '\0';
+
+    ObjString* result = takeString(chars, newLength);
+    push(OBJ_VAL(result));
 }

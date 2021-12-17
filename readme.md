@@ -7,6 +7,7 @@ Other stuff I want to implement:
 - Test suite
 - List data type
 - Errors with try/catch
+- Tail calls
 - Coroutines
 - File I/O standard library
 - String manipulation/regex standard library

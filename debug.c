@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "value.h"
+
 static int simpleInstruction(const char* name, int offset) {
     printf("%s\n", name);
     return offset + 1;
@@ -72,15 +74,5 @@ void disassembleChunk(Chunk* chunk, const char* name) {
     int prevLine = 0;
     for (int offset = 0; offset < chunk->count;) {
         offset = disassembleInstructionExt(chunk, offset, &prevLine);
-    }
-}
-
-void printValue(Value v) {
-    switch (v.type) {
-            //        case VAL_STRING: printf("%s", v.inner.string); break;
-        case VAL_BOOL: printf("%s", AS_BOOL(v) ? "true" : "false"); break;
-        case VAL_NIL: printf("nil"); break;
-        case VAL_NUMBER: printf("%g", AS_NUMBER(v)); break;
-        default: printf("<unknown value type: %d>", v.type); break;
     }
 }
